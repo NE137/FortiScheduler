@@ -206,7 +206,7 @@ namespace FortiScheduler
                 }
 
                 
-                var request = new HttpRequestMessage(HttpMethod.Put, $"https://{IP}/api/v2/cmdb/firewall.schedule/onetime/Allow");
+                var request = new HttpRequestMessage(HttpMethod.Put, $"https://{IP}/api/v2/cmdb/firewall.schedule/onetime/{scheduleName}");
                 request.Headers.Add("Accept", "application/json");
                 request.Headers.Add("User-Agent", "FortiScheduler/1.0");
                 request.Headers.Add("X-Requested-With", "XMLHttpRequest");
