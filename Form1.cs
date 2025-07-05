@@ -1,15 +1,71 @@
 using FortiScheduler.Properties;
 using System.Configuration;
+using System.Diagnostics;
+using System.Net;
+using System.Windows.Forms;
 
 namespace FortiScheduler
 {
     public partial class frmFortiScheduler : Form
     {
+        // Define global variables and constants here if needed
+        // For example, you can define a constant for the default port number
+        public int DefaultPort = 443; // Default port for FortiGate API
+        public string DefaultIP = "192.168.99.1"; // Default IP address for FortiGate
+        public string DefaultApiKey = ""; // Default API key for FortiGate
+        public bool isConnectionSettingsLocked = false; // Flag to check if connection settings are locked
+        public bool autoConnect = false; // Flag to check if auto connect is enabled
+
         public frmFortiScheduler()
         {
             InitializeComponent();
-            Properties.Settings.Default.Reload(); // Reload settings to ensure they are up-to-date
-            Properties.Settings.Default["firstOpen"] = true; // Set firstOpen to true on form initialization
+            string[] args = Environment.GetCommandLineArgs(); // first argument is the executable name, second is the -l flag if present, third is the default IP, fourth is the default port, fifth is the default API key
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                string arg = args[i].ToLower();
+                switch (arg)
+                {
+                    case "-l":
+                        isConnectionSettingsLocked = true; // Check if the settings are locked via command line argument
+                        addEvent("Connection settings are locked by your IT Administrator.");
+                        break;
+                    case "-host":
+                        if (i + 1 < args.Length) // Check if there is a next argument for the host
+                        {
+                            DefaultIP = args[i + 1]; // Set the default IP from command line argument
+                            addEvent($"Default IP set to {DefaultIP}");
+                        }
+                        break;
+                    case "-port":
+                        if (i + 1 < args.Length && int.TryParse(args[i + 1], out int port)) // Check if there is a next argument for the port and if it's a valid integer
+                        {
+                            DefaultPort = port; // Set the default port from command line argument
+                            addEvent($"Default Port set to {DefaultPort}");
+                        }
+                        break;
+                    case "-apikey":
+                        if (i + 1 < args.Length) // Check if there is a next argument for the API key
+                        {
+                            DefaultApiKey = args[i + 1]; // Set the default API key from command line argument
+                            addEvent("Default API Key set.");
+                        }
+                        break;
+                    case "-a":
+                        autoConnect = true; // Check if auto connect is enabled via command line argument
+                        addEvent("Auto connect is enabled.");
+                        break;
+                    case "-s":
+                        lbEvents.Visible = false; // Hide the event log listbox
+                        btnClearEvents.Visible = false; // Hide the clear events button
+                        gbEvents.Visible = false; // Hide the events group box
+                        this.Size = new Size(630, 220); // Resize the form for silent mode
+                        addEvent("Silent mode enabled. Event log is hidden.");
+                        break;
+                }
+            }
+
+            
         }
 
         // Logic to handle adding an event to the listbox lbEvents
@@ -18,7 +74,7 @@ namespace FortiScheduler
         {
             if (!string.IsNullOrEmpty(eventName))
             {
-                lbEvents.Items.Add("[" + DateTime.Now.TimeOfDay.Hours + ":" + DateTime.Now.TimeOfDay.Minutes + ":" + DateTime.Now.TimeOfDay.Seconds + "] " + eventName);
+                lbEvents.Items.Add("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + eventName);
             }
             else
             {
@@ -30,11 +86,9 @@ namespace FortiScheduler
         //oad event handler for the form
         private void frmFortiScheduler_Load(object sender, EventArgs e)
         {
-
-
-
+            
             // Check if the connection settings are locked, if so, disable the input fields
-            if (Settings.Default["connectionSettingsLocked"] != null && (bool)Settings.Default["connectionSettingsLocked"])
+            if (isConnectionSettingsLocked)
             {
                 tbIP.Enabled = false;
                 tbPort.Enabled = false;
@@ -50,11 +104,27 @@ namespace FortiScheduler
                 btnConnect.Enabled = true;
             }
 
-            if (Settings.Default["lastIP"] != null)
-            {
-                tbConnectionStatus.Text = Settings.Default["lastIP"].ToString();
-            }
+            tbIP.Text = DefaultIP;
+            tbPort.Text = DefaultPort.ToString(); // Set the default port
+            tbApiKey.Text = DefaultApiKey; // Set the default API key
+
             addEvent("Form loaded successfully.");
+            if (autoConnect
+                )
+            {
+                addEvent("Auto connect is enabled. Attempting to connect...");
+                btnConnect.PerformClick(); // Automatically attempt to connect if auto connect is enabled
+            }
+            else
+            {
+                addEvent("Auto connect is disabled. Please click the Verify Connection button to connect.");
+            }
+
+            //Set dtpStartTime and dtpEndTime to today at 8:00 AM and 6:30 PM respectively
+            dtpStartTime.Value = DateTime.Today.AddHours(8); // Set start time to 8:00 AM
+            dtpEndTime.Value = DateTime.Today.AddHours(18).AddMinutes(30); // Set end time to 6:30 PM
+            addEvent("Default start time set to 8:00 AM and end time set to 6:30 PM.");
+
 
         }
 
@@ -82,10 +152,10 @@ namespace FortiScheduler
             if (connection.IsConnected)
             {
                 // Save the last connection details to the settings
-                Settings.Default["lastIP"] = tbIP.Text;
-                Settings.Default["lastAPIKey"] = tbApiKey.Text;
-                Settings.Default.Save(); // Save the settings to the config file
-                Settings.Default.Reload(); // Reload settings to reflect changes
+                DefaultIP = tbIP.Text;
+                DefaultApiKey = tbApiKey.Text;
+                DefaultPort = Convert.ToInt32(tbPort.Text);
+
                 tbConnectionStatus.Text = $"Connected to {tbIP.Text}:{tbPort.Text}";
                 addEvent($"Connected to {tbIP.Text}:{tbPort.Text}");
                 btnConnect.Enabled = false; // Disable the connect button after a successful connection
@@ -116,31 +186,7 @@ namespace FortiScheduler
             }
         }
 
-        private void btnConnect_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button.ToString() == "Right" && e.Clicks == 2)
-            {
-                // Toggle the connection settings lock state
-                if (Settings.Default["connectionSettingsLocked"] == null || !(bool)Settings.Default["connectionSettingsLocked"])
-                {
-                    Settings.Default["connectionSettingsLocked"] = true;
-                    tbIP.Enabled = false;
-                    tbPort.Enabled = false;
-                    tbApiKey.Enabled = false;
-                    addEvent("Connection settings locked. Double right-click the Verify Connection button twice to unlock.");
-                }
-                else
-                {
-                    Settings.Default["connectionSettingsLocked"] = false;
-                    tbIP.Enabled = true;
-                    tbPort.Enabled = true;
-                    tbApiKey.Enabled = true;
-                    addEvent("Connection settings unlocked. You can now edit them.");
-                }
-                Settings.Default.Save(); // Save the lock state to the config file
-                Settings.Default.Reload(); // Reload settings to reflect changes
-            }
-        }
+    
 
         private async void btnUpdateSchedule_Click(object sender, EventArgs e)
         {

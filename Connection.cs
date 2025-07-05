@@ -219,7 +219,6 @@ namespace FortiScheduler
                 var et = endTime.ToString("HH:mm yyyy/MM/dd");
 
                 var json = $"{{\"start\": \"{st.Replace("-", "/")}\", \"end\": \"{et.Replace("-", "/")}\"}}";
-                MessageBox.Show("ST: " + st.Replace("-", "/") + ": ET: " + et.Replace("-", "/"));
                 var content = new StringContent(json, null, "application/json");
 
                 request.Content = content;

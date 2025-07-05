@@ -104,7 +104,6 @@
             btnConnect.Text = "Verify Connection";
             btnConnect.UseVisualStyleBackColor = true;
             btnConnect.Click += btnConnect_Click;
-            btnConnect.MouseDown += btnConnect_MouseDown;
             // 
             // tbApiKey
             // 
@@ -155,7 +154,7 @@
             gbSettings.Size = new Size(244, 165);
             gbSettings.TabIndex = 1;
             gbSettings.TabStop = false;
-            gbSettings.Text = "Settings";
+            gbSettings.Text = "Schedules";
             // 
             // cbSchedules
             // 
@@ -259,7 +258,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
-            ClientSize = new Size(610, 450);
+            ClientSize = new Size(614, 451);
             Controls.Add(gbEvents);
             Controls.Add(gbSettings);
             Controls.Add(gbConnection);
