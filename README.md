@@ -8,7 +8,7 @@ The following arguments are available:
 -host : The IP address of the FortiGate firewall.
 -port : The port of the FortiGate firewall. Default is 443.
 -apikey : The API key to authenticate with the FortiGate firewall.
--a : Automatically connect to the FortiGate firewall using the provided settings.
+-a : Automatically connect to the FortiGate firewall using the provided settings. 
 -s : Hide the eventlog module
 ```
 Example usage:
