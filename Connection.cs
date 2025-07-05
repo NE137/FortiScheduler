@@ -23,8 +23,6 @@ namespace FortiScheduler
 
         // Property to hold the URL of the connection
         public string IP { get; private set; }
-        public string User { get; private set; }
-        = "10.0.0.1";
         public int Port { get; private set; }
         = 443;
         public string ApiKey { get; private set; }
