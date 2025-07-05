@@ -3,8 +3,6 @@ FortiScheduler is a program written so a non-administrator is able to use the AP
 The tool allows an IT Administrator to configure it using startup arguments.
 
 The following arguments are available:
--l 10.0.0.1 443 16g8zy5hcy9cgdcr8wdxnk6b0tyG9f -a
-
 ```
 -l : Lock the connection settings module, so the user cannot change the connection settings.
 -host : The IP address of the FortiGate firewall.
