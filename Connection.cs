@@ -205,22 +205,6 @@ namespace FortiScheduler
                     client.BaseAddress = new Uri($"https://{IP}:{Port}");
                 }
 
-                if (Port == 443)
-                {
-                    // Use HTTPS for port 443
-                    client.BaseAddress = new Uri($"https://{IP}");
-                }
-                else if (Port == 80)
-                {
-                    // Use HTTP for port 80
-                    client.BaseAddress = new Uri($"http://{IP}");
-                }
-                else
-                {
-                    // Use HTTPS for other ports
-                    client.BaseAddress = new Uri($"https://{IP}:{Port}");
-                }
-
                 // Set a timeout for the request
                 client.Timeout = TimeSpan.FromSeconds(3);
 
