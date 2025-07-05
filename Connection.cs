@@ -205,29 +205,27 @@ namespace FortiScheduler
                     client.BaseAddress = new Uri($"https://{IP}:{Port}");
                 }
 
-                // Set a timeout for the request
-                client.Timeout = TimeSpan.FromSeconds(3);
-
-                // Apply necessary headers for the request
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
-                client.DefaultRequestHeaders.Add("User-Agent", "FortiScheduler/1.0");
-                client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
-                client.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
-                client.DefaultRequestHeaders.Add("Pragma", "no-cache");
-                client.DefaultRequestHeaders.Add("Connection", "keep-alive");
-
-              
-
-                var json = $"{{\"start\":\"{startTime.ToString("HH:mm yyyy/MM/dd")}\",\"end\":\"{endTime.ToString("HH:mm yyyy/MM/dd")}\"}}";
-
-                HttpContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
- 
-               
-                client.BaseAddress = new Uri($"https://{IP}:{Port}");
                 
-                HttpResponseMessage response = await client.PutAsync($"/api/v2/cmdb/firewall.schedule/onetime/{scheduleName}", httpContent);
-                
+                var request = new HttpRequestMessage(HttpMethod.Put, $"https://{IP}/api/v2/cmdb/firewall.schedule/onetime/Allow");
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("User-Agent", "FortiScheduler/1.0");
+                request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+                request.Headers.Add("Cache-Control", "no-cache");
+                request.Headers.Add("Pragma", "no-cache");
+                request.Headers.Add("Connection", "keep-alive");
+                request.Headers.Add("Authorization", $"Bearer {ApiKey}");
+
+                var st = startTime.ToString("HH:mm yyyy/MM/dd");
+                var et = endTime.ToString("HH:mm yyyy/MM/dd");
+
+                var json = $"{{\"start\": \"{st.Replace("-", "/")}\", \"end\": \"{et.Replace("-", "/")}\"}}";
+                MessageBox.Show("ST: " + st.Replace("-", "/") + ": ET: " + et.Replace("-", "/"));
+                var content = new StringContent(json, null, "application/json");
+
+                request.Content = content;
+                var response = await client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
                 if (response.IsSuccessStatusCode) this.isUpdated = true;
             }
             catch (Exception ex)

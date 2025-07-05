@@ -179,7 +179,7 @@
             // 
             // dtpEndTime
             // 
-            dtpEndTime.CustomFormat = "dd/MM/yyyy HH:mm";
+            dtpEndTime.CustomFormat = "yyyy/MM/dd HH:mm";
             dtpEndTime.Format = DateTimePickerFormat.Custom;
             dtpEndTime.Location = new Point(107, 82);
             dtpEndTime.Name = "dtpEndTime";
@@ -197,7 +197,7 @@
             // 
             // dtpStartTime
             // 
-            dtpStartTime.CustomFormat = "dd/MM/yyyy HH:mm";
+            dtpStartTime.CustomFormat = "yyyy/MM/dd HH:mm";
             dtpStartTime.Format = DateTimePickerFormat.Custom;
             dtpStartTime.Location = new Point(107, 53);
             dtpStartTime.Name = "dtpStartTime";
